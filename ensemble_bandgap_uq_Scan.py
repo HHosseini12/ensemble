@@ -224,9 +224,9 @@ def load_data(data_dir: Path) -> Tuple[np.ndarray, np.ndarray]:
     X, y:
         Filtered feature matrix and target vector.
     """
-    ECFP_all = np.load(data_dir / "ECFPs_MP_466.npy", allow_pickle=True)
-    BG_all = np.load(data_dir / "Bandgaps_MP_466.npy", allow_pickle=True)
-    inf_index = np.load(data_dir / "infinity_feat_index.npy", allow_pickle=True)
+    ECFP_all = np.load(data_dir / "ECFPs_Scan_466.npy", allow_pickle=True)
+    BG_all = np.load(data_dir / "Bandgaps_Scan_466.npy", allow_pickle=True)
+    inf_index = np.load(data_dir / "infinity_feat_index_Scan.npy", allow_pickle=True)
 
     # Remove samples with infinite features
     ECFP_w = [e for i, e in enumerate(ECFP_all) if i not in inf_index]
