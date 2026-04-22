@@ -8,9 +8,6 @@ library.
 The base model (``MP_16770.h5``) is loaded and fine-tuned for each inner fold.
 Only the learning rate is tuned; all five base-model layers are set trainable.
 
-Reference
----------
-[Your paper citation here]
 
 Requirements
 ------------
