@@ -4,9 +4,6 @@ Ensemble Neural Network with Uncertainty Quantification for Band Gap Prediction
 Nested cross-validation (5-outer × 5-inner) using deep ensembles and isotonic
 recalibration via the uncertainty-toolbox library.
 
-Reference
----------
-[Your paper citation here]
 
 Requirements
 ------------
