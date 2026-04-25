@@ -458,8 +458,8 @@ def plot_calibration_curve(
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold"))
-    ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold"))
+    ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
+    ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
     _apply_base_style(ax)
 
     leg = ax.legend(fontsize=_LEGEND_FS, frameon=False, loc="upper left")
