@@ -268,7 +268,8 @@ def run_nested_cv(
     all_preds, all_trues, all_stds, all_stds_uncal = [], [], [], []
     metrics = dict(mae=[], rmse=[], r2=[],
                    mace_before=[], rmsce_before=[], ma_before=[],
-                   mace_after=[], rmsce_after=[], ma_after=[])
+                   mace_after=[], rmsce_after=[], ma_after=[], 
+                   coverage90_before=[], coverage90_after=[])
 
     for fold_idx, (outer_train_idx, outer_test_idx) in enumerate(
         outer_cv.split(X, y), start=1
@@ -350,6 +351,9 @@ def run_nested_cv(
                 uct.metrics.root_mean_squared_calibration_error(mean_preds, std, y_test))
             metrics[f"ma_{tag}"].append(
                 uct.metrics.miscalibration_area(mean_preds, std, y_test))
+            metrics[f"coverage90_{tag}"].append(
+                uct.metrics_calibration.get_proportion_in_interval(
+                    mean_preds, std, y_test, quantile=0.90))
 
         print(f"\n  MAE={fold_mae:.4f}  RMSE={fold_rmse:.4f}  R²={fold_r2:.4f}")
         print(f"  Calibration before → MACE={metrics['mace_before'][-1]:.4f}  "
@@ -387,6 +391,11 @@ def print_summary(metrics: dict) -> None:
     for key in ("mace_after", "rmsce_after", "ma_after"):
         label = key.split("_")[0].upper()
         print(f"  {label:6s}: {metrics[key].mean():.4f} ± {metrics[key].std():.4f}")
+    print("\n  -- Coverage at 90% interval level --")
+    for key, label in [("coverage90_before", "Before recal"),
+                       ("coverage90_after",  "After recal")]:
+        print(f"  {label}: {metrics[key].mean()*100:.1f}% ± {metrics[key].std()*100:.1f}%"
+              f"  (ideal: 90.0%)")    
 
 
 # ===========================================================================
@@ -394,8 +403,8 @@ def print_summary(metrics: dict) -> None:
 # ===========================================================================
 
 _FONT = "DejaVu Sans"
-_LABEL_FS = 18
-_TICK_FS = 16
+_LABEL_FS = 20
+_TICK_FS = 17
 _LEGEND_FS = 16
 _TEXT_FS = 16
 _DPI = 600
@@ -433,7 +442,7 @@ def plot_calibration_curve(
     plt.Axes
     """
     if ax is None:
-        _, ax = plt.subplots(figsize=(6, 6))
+        _, ax = plt.subplots(figsize=(7, 7))
 
     exp_props, obs_props = uct.metrics_calibration.get_proportion_lists_vectorized(
         y_pred, y_std, y_true, num_bins=num_bins, prop_type="interval"
@@ -449,8 +458,8 @@ def plot_calibration_curve(
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
+    ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
     _apply_base_style(ax)
 
     leg = ax.legend(fontsize=_LEGEND_FS, frameon=False, loc="upper left")
@@ -485,7 +494,7 @@ def plot_sharpness(
     plt.Axes
     """
     if ax is None:
-        _, ax = plt.subplots(figsize=(6, 6))
+        _, ax = plt.subplots(figsize=(7, 7))
 
     sharpness = float(np.sqrt(np.mean(y_std ** 2)))
     ax.hist(y_std, edgecolor="#1f77b4", color="#a5c8e1", density=True)
@@ -528,7 +537,7 @@ def plot_parity(
     plt.Axes
     """
     if ax is None:
-        _, ax = plt.subplots(figsize=(6, 6))
+        _, ax = plt.subplots(figsize=(7, 7))
 
     ax.scatter(y_true, y_pred, color="darkblue", alpha=0.7, s=25, zorder=3)
     ax.errorbar(y_true, y_pred, yerr=y_std, fmt="none",
