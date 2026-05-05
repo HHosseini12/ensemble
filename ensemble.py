@@ -489,17 +489,16 @@ def make_figure_target_uncalibrated(results_target: dict, out_path: str) -> None
     fig.savefig(out_path, dpi=DPI, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved Uncalibrated Target Figure (d, e, f) to: {out_path}")
-
-    def save_all_figures(results_tl: dict, results_target: dict, out_dir: Path) -> None:
+def save_all_figures(results_tl: dict, results_target: dict, out_dir: Path) -> None:
     """Helper to organize figure saving."""
     out_dir.mkdir(exist_ok=True)
     
-    # We call your specific d, e, f function here
+    # Generate panels (d), (e), and (f) using the Target Model results
     make_figure_target_uncalibrated(
         results_target=results_target,
         out_path=str(out_dir / "figure_target_uncal.png")
     )
-
+    print(f"  Saved Target Figure (d,e,f) to: {out_dir / 'figure_target_uncal.png'}")
 def main() -> None:
     X, y = load_data(DATA_DIR)
 
