@@ -402,12 +402,13 @@ def print_summary(metrics: dict) -> None:
 # Plotting
 # ===========================================================================
 
-_FONT = "DejaVu Sans"
-_LABEL_FS = 20
-_TICK_FS = 17
-_LEGEND_FS = 16
-_TEXT_FS = 16
-_DPI = 600
+_FONT      = "DejaVu Sans"
+_LABEL_FS  = 24   # was 20
+_TICK_FS   = 21   # was 17
+_LEGEND_FS = 21   # was 16
+_TEXT_FS   = 21   # was 16
+_DPI       = 600
+_FIG_SIZE  = (6, 6)   # single source of truth for every panel
 
 
 def _apply_base_style(ax: plt.Axes) -> None:
@@ -424,25 +425,8 @@ def plot_calibration_curve(
     num_bins: int = 100,
     ax: plt.Axes | None = None,
 ) -> plt.Axes:
-    """Plot an interval-calibration curve with shaded miscalibration area.
-
-    Parameters
-    ----------
-    y_pred, y_std, y_true:
-        Predicted means, standard deviations, and ground-truth values.
-    curve_label:
-        Legend label for the calibration curve.
-    num_bins:
-        Number of probability bins.
-    ax:
-        Existing ``Axes`` to draw on; a new figure is created if ``None``.
-
-    Returns
-    -------
-    plt.Axes
-    """
     if ax is None:
-        _, ax = plt.subplots(figsize=(6, 6))
+        _, ax = plt.subplots(figsize=_FIG_SIZE)
 
     exp_props, obs_props = uct.metrics_calibration.get_proportion_lists_vectorized(
         y_pred, y_std, y_true, num_bins=num_bins, prop_type="interval"
@@ -480,21 +464,8 @@ def plot_sharpness(
     y_std: np.ndarray,
     ax: plt.Axes | None = None,
 ) -> plt.Axes:
-    """Plot a histogram of predictive standard deviations with sharpness line.
-
-    Parameters
-    ----------
-    y_std:
-        Predicted standard deviations.
-    ax:
-        Existing ``Axes`` to draw on; a new figure is created if ``None``.
-
-    Returns
-    -------
-    plt.Axes
-    """
     if ax is None:
-        _, ax = plt.subplots(figsize=(7, 7))
+        _, ax = plt.subplots(figsize=_FIG_SIZE)   # was (7, 7)
 
     sharpness = float(np.sqrt(np.mean(y_std ** 2)))
     ax.hist(y_std, edgecolor="#1f77b4", color="#a5c8e1", density=True)
@@ -503,9 +474,13 @@ def plot_sharpness(
 
     ax.set_xlim(0.05, 1.05 * y_std.max())
     ax.set_yticks([])
-    ax.set_xlabel("Predicted Std. Dev. (eV)", fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_ylabel("Normalised Frequency", fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_xlabel("Predicted Std. Dev. (eV)", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
+    ax.set_ylabel("Normalised Frequency",     fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
     _apply_base_style(ax)
+
+    leg = ax.legend(fontsize=_LEGEND_FS, frameon=False, loc="upper right")
+    for t in leg.get_texts():
+        t.set_fontname(_FONT)
 
     ax.text(0.98, 0.95, f"Sharpness = {sharpness:.2f} eV",
             transform=ax.transAxes, ha="right", va="top",
@@ -521,23 +496,8 @@ def plot_parity(
     ylabel: str = "Predicted Band Gap (eV)",
     ax: plt.Axes | None = None,
 ) -> plt.Axes:
-    """Scatter parity plot with per-point error bars.
-
-    Parameters
-    ----------
-    y_true, y_pred, y_std:
-        Ground-truth, predicted means, and predicted standard deviations.
-    xlabel, ylabel:
-        Axis labels.
-    ax:
-        Existing ``Axes`` to draw on; a new figure is created if ``None``.
-
-    Returns
-    -------
-    plt.Axes
-    """
     if ax is None:
-        _, ax = plt.subplots(figsize=(6, 6))
+        _, ax = plt.subplots(figsize=_FIG_SIZE)
 
     ax.scatter(y_true, y_pred, color="darkblue", alpha=0.7, s=25, zorder=3)
     ax.errorbar(y_true, y_pred, yerr=y_std, fmt="none",
@@ -547,8 +507,8 @@ def plot_parity(
     hi = max(y_true.max(), y_pred.max())
     ax.plot([lo, hi], [lo, hi], "--", color="black", lw=2)
 
-    ax.set_xlabel(xlabel, fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_ylabel(ylabel, fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_xlabel(xlabel, fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
+    ax.set_ylabel(ylabel, fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
     ax.set_aspect("equal", adjustable="box")
     _apply_base_style(ax)
     plt.tight_layout()
