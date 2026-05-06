@@ -402,12 +402,13 @@ def print_summary(metrics: dict) -> None:
 # Plotting
 # ===========================================================================
 
-_FONT = "DejaVu Sans"
-_LABEL_FS = 20
-_TICK_FS = 17
-_LEGEND_FS = 16
-_TEXT_FS = 16
-_DPI = 600
+_FONT      = "DejaVu Sans"
+_LABEL_FS  = 24
+_TICK_FS   = 21
+_LEGEND_FS = 21
+_TEXT_FS   = 21
+_DPI       = 600
+_FIG_SIZE  = (8, 8)   # larger canvas so labels aren't clipped
 
 
 def _apply_base_style(ax: plt.Axes) -> None:
@@ -424,25 +425,8 @@ def plot_calibration_curve(
     num_bins: int = 100,
     ax: plt.Axes | None = None,
 ) -> plt.Axes:
-    """Plot an interval-calibration curve with shaded miscalibration area.
-
-    Parameters
-    ----------
-    y_pred, y_std, y_true:
-        Predicted means, standard deviations, and ground-truth values.
-    curve_label:
-        Legend label for the calibration curve.
-    num_bins:
-        Number of probability bins.
-    ax:
-        Existing ``Axes`` to draw on; a new figure is created if ``None``.
-
-    Returns
-    -------
-    plt.Axes
-    """
     if ax is None:
-        _, ax = plt.subplots(figsize=(7, 7))
+        _, ax = plt.subplots(figsize=_FIG_SIZE)
 
     exp_props, obs_props = uct.metrics_calibration.get_proportion_lists_vectorized(
         y_pred, y_std, y_true, num_bins=num_bins, prop_type="interval"
@@ -458,8 +442,8 @@ def plot_calibration_curve(
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
-    ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT, fontweight="bold")
+    ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
 
     leg = ax.legend(fontsize=_LEGEND_FS, frameon=False, loc="upper left")
@@ -473,6 +457,8 @@ def plot_calibration_curve(
         ha="right", va="bottom",
         fontsize=_TEXT_FS, fontname=_FONT,
     )
+
+    plt.tight_layout()
     return ax
 
 
@@ -480,36 +466,25 @@ def plot_sharpness(
     y_std: np.ndarray,
     ax: plt.Axes | None = None,
 ) -> plt.Axes:
-    """Plot a histogram of predictive standard deviations with sharpness line.
-
-    Parameters
-    ----------
-    y_std:
-        Predicted standard deviations.
-    ax:
-        Existing ``Axes`` to draw on; a new figure is created if ``None``.
-
-    Returns
-    -------
-    plt.Axes
-    """
     if ax is None:
-        _, ax = plt.subplots(figsize=(7, 7))
+        _, ax = plt.subplots(figsize=_FIG_SIZE)
 
     sharpness = float(np.sqrt(np.mean(y_std ** 2)))
     ax.hist(y_std, edgecolor="#1f77b4", color="#a5c8e1", density=True)
-    ax.axvline(sharpness, color="k", lw=2.5, ls="--",
-               label=f"Sharpness = {sharpness:.2f} eV")
+    ax.axvline(sharpness, color="k", lw=2.5, ls="--")   # no label here
 
     ax.set_xlim(0.05, 1.05 * y_std.max())
     ax.set_yticks([])
     ax.set_xlabel("Predicted Std. Dev. (eV)", fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_ylabel("Normalised Frequency", fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_ylabel("Normalised Frequency",     fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
 
+    # single annotation — no duplicate legend entry
     ax.text(0.98, 0.95, f"Sharpness = {sharpness:.2f} eV",
             transform=ax.transAxes, ha="right", va="top",
             fontsize=_TEXT_FS, fontname=_FONT)
+
+    plt.tight_layout()
     return ax
 
 
@@ -521,23 +496,8 @@ def plot_parity(
     ylabel: str = "Predicted Band Gap (eV)",
     ax: plt.Axes | None = None,
 ) -> plt.Axes:
-    """Scatter parity plot with per-point error bars.
-
-    Parameters
-    ----------
-    y_true, y_pred, y_std:
-        Ground-truth, predicted means, and predicted standard deviations.
-    xlabel, ylabel:
-        Axis labels.
-    ax:
-        Existing ``Axes`` to draw on; a new figure is created if ``None``.
-
-    Returns
-    -------
-    plt.Axes
-    """
     if ax is None:
-        _, ax = plt.subplots(figsize=(7, 7))
+        _, ax = plt.subplots(figsize=_FIG_SIZE)
 
     ax.scatter(y_true, y_pred, color="darkblue", alpha=0.7, s=25, zorder=3)
     ax.errorbar(y_true, y_pred, yerr=y_std, fmt="none",
