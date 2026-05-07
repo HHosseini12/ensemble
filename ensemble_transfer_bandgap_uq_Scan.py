@@ -594,6 +594,8 @@ def plot_parity(
     lo = min(y_true.min(), y_pred.min())
     hi = max(y_true.max(), y_pred.max())
     ax.plot([lo, hi], [lo, hi], "--", color="black", lw=2)
+    ax.set_xlim(lo, hi)   
+    ax.set_ylim(lo, hi)   
 
     ax.set_xlabel(xlabel, fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_ylabel(ylabel, fontsize=_LABEL_FS, fontname=_FONT)
@@ -628,6 +630,8 @@ def plot_parity_overlay(
     lo = min(y_true.min(), y_pred.min())
     hi = max(y_true.max(), y_pred.max())
     ax.plot([lo, hi], [lo, hi], "--", color="black", lw=2)
+    ax.set_xlim(lo, hi)   
+    ax.set_ylim(lo, hi)   
 
     ax.set_xlabel(xlabel, fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_ylabel(ylabel, fontsize=_LABEL_FS, fontname=_FONT)
