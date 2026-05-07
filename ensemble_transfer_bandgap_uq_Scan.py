@@ -399,7 +399,6 @@ def print_summary(metrics: dict) -> None:
 # ===========================================================================
 # Plotting helpers
 # ===========================================================================
-
 _FONT      = "DejaVu Sans"
 _LABEL_FS  = 24
 _TICK_FS   = 21
@@ -689,9 +688,6 @@ def main() -> None:
     save_all_figures(results, RESULTS_DIR)
     print("\nDone.")
 
-
-if __name__ == "__main__":
-    main()
 
 if __name__ == "__main__":
     main()
