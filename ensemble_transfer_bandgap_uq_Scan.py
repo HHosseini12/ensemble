@@ -440,6 +440,7 @@ def plot_calibration_curve(
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_aspect("equal", adjustable="box")
+    ax.set_box_aspect(1)
     ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
@@ -493,6 +494,7 @@ def plot_calibration_comparison(
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_aspect("equal", adjustable="box")
+    ax.set_box_aspect(1)
     ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
@@ -526,6 +528,7 @@ def plot_sharpness(
 
     ax.set_xlim(0.03, 1.05 * y_std.max())
     ax.set_yticks([])
+    ax.set_box_aspect(1)
     ax.set_xlabel("Predicted Std. Dev. (eV)", fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_ylabel("Normalised Frequency",     fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
@@ -600,6 +603,7 @@ def plot_parity(
     ax.set_xlabel(xlabel, fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_ylabel(ylabel, fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_aspect("equal", adjustable="box")
+    ax.set_box_aspect(1)
     _apply_base_style(ax)
     plt.tight_layout()
     return ax
