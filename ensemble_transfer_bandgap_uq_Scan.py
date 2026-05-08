@@ -414,6 +414,13 @@ def _apply_base_style(ax: plt.Axes) -> None:
         label.set_fontname(_FONT)
 
 
+def _finalise_square_ax(ax: plt.Axes) -> None:
+    """Force a truly square axes box, remove conflicting helpers, then tighten."""
+    # Drop set_box_aspect — set_aspect("equal","box") is authoritative.
+    ax.set_aspect("equal", adjustable="box")
+    ax.figure.tight_layout()
+
+
 def plot_calibration_curve(
     y_pred: np.ndarray,
     y_std: np.ndarray,
@@ -439,10 +446,8 @@ def plot_calibration_curve(
 
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    ax.set_aspect("equal", adjustable="box")
-    ax.set_box_aspect(1)
     ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_ylabel("Observed Proportion Interval",  fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
 
     leg = ax.legend(fontsize=_LEGEND_FS, frameon=False, loc="upper left")
@@ -456,7 +461,7 @@ def plot_calibration_curve(
         ha="right", va="bottom",
         fontsize=_TEXT_FS, fontname=_FONT,
     )
-    plt.tight_layout()
+    _finalise_square_ax(ax)
     return ax
 
 
@@ -493,10 +498,8 @@ def plot_calibration_comparison(
     ax.plot([0, 1], [0, 1], "--", color="black", lw=2, label="Ideal")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    ax.set_aspect("equal", adjustable="box")
-    ax.set_box_aspect(1)
     ax.set_xlabel("Predicted Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_ylabel("Observed Proportion Interval", fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_ylabel("Observed Proportion Interval",  fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
 
     leg = ax.legend(fontsize=_LEGEND_FS, frameon=False, loc="upper left")
@@ -510,7 +513,7 @@ def plot_calibration_comparison(
         ha="right", va="bottom",
         fontsize=_TEXT_FS, fontname=_FONT,
     )
-    plt.tight_layout()
+    _finalise_square_ax(ax)
     return ax
 
 
@@ -528,15 +531,18 @@ def plot_sharpness(
 
     ax.set_xlim(0.03, 1.05 * y_std.max())
     ax.set_yticks([])
-    ax.set_box_aspect(1)
     ax.set_xlabel("Predicted Std. Dev. (eV)", fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_ylabel("Normalised Frequency",     fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_ylabel("Normalised Frequency",      fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
 
     ax.text(0.98, 0.95, f"Sharpness = {sharpness:.2f} eV",
             transform=ax.transAxes, ha="right", va="top",
             fontsize=_TEXT_FS, fontname=_FONT)
-    plt.tight_layout()
+
+    # Use set_box_aspect only for non-equal-aspect plots (histograms).
+    # Do NOT also call set_aspect here — they conflict.
+    ax.set_box_aspect(1)
+    ax.figure.tight_layout()
     return ax
 
 
@@ -550,7 +556,7 @@ def plot_sharpness_comparison(
     if ax is None:
         _, ax = plt.subplots(figsize=_FIG_SIZE)
 
-    all_std = np.concatenate([y_std_uncal, y_std_recal])
+    all_std  = np.concatenate([y_std_uncal, y_std_recal])
     bin_edges = np.linspace(all_std.min(), all_std.max(), bins + 1)
 
     ax.hist(y_std_uncal, bins=bin_edges, color="darkred",  edgecolor="k",
@@ -567,14 +573,15 @@ def plot_sharpness_comparison(
 
     ax.set_xlim(left=0.02)
     ax.set_xlabel("Band Gap Uncertainty (σ, eV)", fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_ylabel("Normalised Frequency",         fontsize=_LABEL_FS, fontname=_FONT)
+    ax.set_ylabel("Normalised Frequency",          fontsize=_LABEL_FS, fontname=_FONT)
     _apply_base_style(ax)
 
     leg = ax.legend(fontsize=_LEGEND_FS, frameon=False)
     for t in leg.get_texts():
         t.set_fontname(_FONT)
 
-    plt.tight_layout()
+    ax.set_box_aspect(1)          # square box without constraining data aspect
+    ax.figure.tight_layout()
     return ax
 
 
@@ -597,15 +604,13 @@ def plot_parity(
     lo = min(y_true.min(), y_pred.min())
     hi = max(y_true.max(), y_pred.max())
     ax.plot([lo, hi], [lo, hi], "--", color="black", lw=2)
-    ax.set_xlim(lo, hi)   
-    ax.set_ylim(lo, hi)   
+    ax.set_xlim(lo, hi)
+    ax.set_ylim(lo, hi)
 
     ax.set_xlabel(xlabel, fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_ylabel(ylabel, fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_aspect("equal", adjustable="box")
-    ax.set_box_aspect(1)
     _apply_base_style(ax)
-    plt.tight_layout()
+    _finalise_square_ax(ax)
     return ax
 
 
@@ -634,19 +639,18 @@ def plot_parity_overlay(
     lo = min(y_true.min(), y_pred.min())
     hi = max(y_true.max(), y_pred.max())
     ax.plot([lo, hi], [lo, hi], "--", color="black", lw=2)
-    ax.set_xlim(lo, hi)   
-    ax.set_ylim(lo, hi)   
+    ax.set_xlim(lo, hi)
+    ax.set_ylim(lo, hi)
 
     ax.set_xlabel(xlabel, fontsize=_LABEL_FS, fontname=_FONT)
     ax.set_ylabel(ylabel, fontsize=_LABEL_FS, fontname=_FONT)
-    ax.set_aspect("equal", adjustable="box")
     _apply_base_style(ax)
 
     leg = ax.legend(fontsize=_LEGEND_FS, frameon=False, loc="upper left")
     for t in leg.get_texts():
         t.set_fontname(_FONT)
 
-    plt.tight_layout()
+    _finalise_square_ax(ax)
     return ax
 
 
@@ -682,7 +686,6 @@ def save_all_figures(results: dict, out_dir: Path) -> None:
         ax.figure.savefig(out_dir / fname, dpi=_DPI, bbox_inches="tight")
         plt.close(ax.figure)
         print(f"  Saved: {out_dir / fname}")
-
 
 # ===========================================================================
 # Entry point
